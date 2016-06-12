@@ -18,6 +18,7 @@ class DrawViewController: UIViewController {
     private let tap = UITapGestureRecognizer()
     private let pan = UIPanGestureRecognizer()
     private let edge = UIScreenEdgePanGestureRecognizer()
+    private let userIcon = UIButton(type: UIButtonType.Custom)
     
 
     override func viewDidLoad() {
@@ -51,6 +52,18 @@ class DrawViewController: UIViewController {
         // 设置滑动首饰优先级比点击优先级高
         tap.requireGestureRecognizerToFail(pan)
         
+        addSubView()
+        
+    }
+    
+    func addSubView() {
+        
+        userIcon.frame = CGRect(x: 15, y: 20, width: 40, height: 40);
+        userIcon.layer.masksToBounds = true
+        userIcon.layer.cornerRadius = 20
+        userIcon.setImage(UIImage(named: "userIcon"), forState: UIControlState.Normal)
+        userIcon.addTarget(self, action: #selector(DrawViewController.barButtonAction), forControlEvents: UIControlEvents.TouchUpInside)
+        mainController.view .addSubview(userIcon)
     }
     
     func edgeAction(edge: UIScreenEdgePanGestureRecognizer) -> Void {
@@ -64,15 +77,18 @@ class DrawViewController: UIViewController {
             }
             edge.view?.frame = CGRect(x: point.x, y: 0, width: width, height: height)
             leftController.view.frame = CGRect(x: -(width - 100)/2 + point.x/2, y: 0, width: width, height: height)
+            userIcon.alpha = (width - 100 - point.x) / (width - 100)
         case UIGestureRecognizerState.Ended:
             if point.x > (width - 100) / 2 {
                 point.x = width - 100
                 tap.enabled = true
                 pan.enabled = true
+                userIcon.alpha = 0
             }else if point.x <= (width - 100) / 2 {
                 point.x = 0
                 tap.enabled = false
                 pan.enabled = false
+                userIcon.alpha = 1
             }
             weak var weakSelf = self
             UIView.animateWithDuration(0.1, animations: { 
@@ -95,18 +111,22 @@ class DrawViewController: UIViewController {
             }else if point.x > 0 {
                 point.x = 0
             }
+            
             pan.view?.frame = CGRect(x: width - 100 + point.x, y: 0, width: width, height: height)
             leftController.view.frame = CGRect(x:point.x/2, y: 0, width: width, height: height)
+            userIcon.alpha = 100 / (width - 100 + point.x)
+            print((width - 100 + point.x))
         case UIGestureRecognizerState.Ended:
             if point.x < (100 - width) / 2 {
                 point.x = 100 - width
                 tap.enabled = false
                 pan.enabled = false
-                
+                userIcon.alpha = 1
             }else if point.x > (100 - width) / 2 {
                 point.x = 0
                 tap.enabled = true
                 pan.enabled = true
+                userIcon.alpha = 0
             }
             weak var weakSelf = self
             UIView.animateWithDuration(0.1, animations: {
@@ -125,6 +145,7 @@ class DrawViewController: UIViewController {
         UIView.animateWithDuration(0.5, animations: { 
             weakSelf!.leftController.view.frame = CGRect(x: -(weakSelf!.width / 3), y: 0, width: weakSelf!.width, height: weakSelf!.height)
             tap.view?.center = weakSelf!.view.center
+            weakSelf!.userIcon.alpha = 1
             }) { (Bool) in
                 tap.enabled = false
                 weakSelf!.pan.enabled = false
@@ -132,11 +153,12 @@ class DrawViewController: UIViewController {
         
     }
     
-    func barButtonAction(){
+    func barButtonAction(button: UIButton){
         weak var weakSelf = self
         UIView.animateWithDuration(0.5, animations: {
             weakSelf!.leftController.view.frame = CGRect(x: 0, y: 0, width: weakSelf!.width, height: weakSelf!.height)
             weakSelf!.tap.view?.frame = CGRect(x: weakSelf!.width - 100, y: 0, width: weakSelf!.width, height: weakSelf!.height)
+            weakSelf!.userIcon.alpha = 0
         }) { (Bool) in
             weakSelf!.tap.enabled = true
             weakSelf!.pan.enabled = true

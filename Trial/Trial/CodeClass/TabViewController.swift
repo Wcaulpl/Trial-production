@@ -19,9 +19,22 @@ class TabViewController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         // Do any additional setup after loading the view.
-        view.backgroundColor = UIColor.yellowColor()
+        
+        tabBar.tintColor = UIColor.cyanColor()
+        
+        // 添加子控制器
+        addChildViewController(RadioViewController(), title: "电台", imageName: "Radio")
+        addChildViewController(ReadViewController(), title: "阅读", imageName: "Read")
+        addChildViewController(VideoViewController(), title: "视频", imageName: "Video")
+
+        
+    }
+    
+    private func addChildViewController(childController: UIViewController, title:String, imageName:String) {
+        childController.tabBarItem.image = UIImage(named: imageName)
+        childController.title = title
+        addChildViewController(childController)
     }
 
     override func didReceiveMemoryWarning() {
